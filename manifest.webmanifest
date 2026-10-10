@@ -1,7 +1,7 @@
 {
   "name": "House of Lavanya — Business Manager",
   "short_name": "HoL Manager",
-  "description": "True cost, price floors and B2B rates for House of Lavanya.",
+  "description": "Orders, catalogue, money, stock, customers and prospects.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
