@@ -1,0 +1,23 @@
+{
+  "name": "House of Lavanya — Business Manager",
+  "short_name": "HoL Manager",
+  "description": "True cost, price floors and B2B rates for House of Lavanya.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#FAF7F1",
+  "theme_color": "#1E3A33",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
