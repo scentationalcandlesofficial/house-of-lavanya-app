@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>House of Lavanya — Business Manager</title>
 <style>
   :root{
@@ -225,6 +225,86 @@ h3{font-family:'Pagella',Georgia,serif;font-weight:400}
 .hol .opt p{font-size:12.5px;color:#5F6A63;margin:0 0 10px}
 .hol input[type=range]{width:100%}
 .hol-hidden{display:none!important}
+/* ---------- Catalogue: true cost panel ---------- */
+.catcost{margin-top:16px;border:1px solid #D9D2C2;border-radius:12px;background:#FAF7F1;padding:14px 16px}
+.catcost:empty{display:none}
+.catcost h3{margin:0 0 8px;font-size:16px;color:#1E3A33}
+.catcost .kp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.catcost .kp div{background:#fff;border:1px solid #E6DFD0;border-radius:10px;padding:8px 10px}
+.catcost .kp span{display:block;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#5F6A63}
+.catcost .kp b{display:block;font-family:'Pagella',serif;font-weight:400;font-size:19px;color:#1E3A33;margin-top:2px}
+.catcost .kp .good b{color:#2F7A4F}.catcost .kp .bad b{color:#A23B2C}.catcost .kp .warn b{color:#9A6A12}
+.catcost table td,.catcost table th{padding:5px 8px}
+.catcost table td:not(:first-child),.catcost table th:not(:first-child){text-align:right}
+.catcost .tot td{font-weight:700;border-top:2px solid #1E3A33}
+.catcost details{margin-top:8px}
+.catcost summary{cursor:pointer;font-weight:700;color:#1E3A33;font-size:13px}
+.catcost .note{background:#F8ECD3;color:#6B4A0E;border-radius:8px;padding:8px 10px;font-size:12px;margin:8px 0}
+.catcost .pill{display:inline-block;border-radius:20px;padding:1px 9px;font-size:11px;font-weight:700}
+.catcost .pill.good{background:#E3F0E6;color:#2F7A4F}.catcost .pill.warn{background:#F8ECD3;color:#9A6A12}.catcost .pill.bad{background:#F6E0DB;color:#A23B2C}
+.catcost .lnk{background:none;border:none;color:#1E3A33;text-decoration:underline;padding:0;font-weight:700;font-size:12.5px;min-height:0}
+
+/* ---------- Phone layout: app-style screens with a bottom tab bar ---------- */
+.mnav,.msheet,.msheet-bg{display:none}
+@media (max-width:760px){
+  html{-webkit-text-size-adjust:100%}
+  body{padding-bottom:calc(68px + env(safe-area-inset-bottom))}
+  header{padding:calc(10px + env(safe-area-inset-top)) 14px 10px;gap:10px;position:sticky;top:0;z-index:50}
+  header img{height:30px}
+  header h1{font-size:17px}
+  header p{display:none}
+  .wrap{padding:10px 12px 24px;max-width:100%}
+  .tabs{display:none}
+  .status-bar{padding:8px 12px;margin-bottom:10px;border-radius:12px;gap:8px}
+  .status-text{font-size:12.5px;min-width:0}
+  .status-bar button{padding:7px 12px;min-height:34px}
+  .grid{gap:12px;flex-direction:column}
+  .col-form,.col-side{flex:1 1 auto;width:100%}
+  .card{padding:16px 14px;border-radius:16px}
+  h2{font-size:18px}
+  .row2,.row3{flex-direction:column;gap:0}
+  input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel],select,textarea{font-size:16px;padding:11px 12px;border-radius:10px}
+  label{font-size:13px;margin:12px 0 5px}
+  button{min-height:44px;border-radius:10px}
+  .tiny-btn{min-height:34px;padding:6px 12px;font-size:12.5px;border-radius:8px}
+  .submit-row{flex-wrap:wrap;position:sticky;bottom:calc(64px + env(safe-area-inset-bottom));background:#FAF7F1;padding:10px 0;margin-top:16px;z-index:5}
+  .submit-row button{flex:1 1 40%}
+  .dash-row{gap:8px;margin-bottom:14px}
+  .dash-card{flex:1 1 calc(50% - 8px);padding:10px 12px}
+  .search-box{flex-wrap:wrap}
+  .search-box select{max-width:none;flex:1}
+  .instructions{padding:12px 14px}
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal-card,.modal-card.wide{max-width:100%;width:100%;border-radius:20px 20px 0 0;max-height:92vh;overflow:auto;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
+  .thumb,.thumb img{width:72px}.thumb img{height:72px}
+  .catcost .kp{grid-template-columns:1fr 1fr}
+  /* tables become stacked cards */
+  table.rt{display:block;overflow:visible}
+  table.rt thead{display:none}
+  table.rt tbody{display:block}
+  table.rt tr{display:block;background:#fff;border:1px solid #E6DFD0;border-radius:14px;padding:6px 12px;margin-bottom:10px}
+  table.rt tr:hover td{background:none}
+  table.rt td{display:flex;justify-content:space-between;align-items:center;gap:12px;border-bottom:1px solid #F1ECE2;padding:7px 0;text-align:right;font-size:13.5px}
+  table.rt td:last-child{border-bottom:none}
+  table.rt td::before{content:attr(data-label);font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:#5F6A63;text-align:left;flex:0 0 auto;max-width:45%}
+  table.rt td:first-child{font-weight:700;font-size:15px;color:#1E3A33;justify-content:flex-start;text-align:left}
+  table.rt td:first-child::before{display:none}
+  table.rt td[data-label=""]::before{display:none}
+  table.rt td[colspan]{justify-content:center}
+  table:not(.rt){display:block;overflow-x:auto}
+  .catcost table{display:table!important;width:100%}
+  /* bottom tab bar */
+  .mnav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:200;background:#1E3A33;border-top:2px solid #B48A4C;padding:4px 4px calc(4px + env(safe-area-inset-bottom))}
+  .mnav button{background:none;border:none;color:#C9C3B4;font:inherit;font-size:10.5px;font-weight:400;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:52px;border-radius:10px}
+  .mnav button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .mnav button.on{color:#F4EFE6;background:rgba(180,138,76,.22)}
+  .msheet-bg.show{display:block;position:fixed;inset:0;background:rgba(20,30,26,.45);z-index:210}
+  .msheet.show{display:block;position:fixed;left:0;right:0;bottom:0;z-index:220;background:#FAF7F1;border-radius:20px 20px 0 0;padding:14px 14px calc(16px + env(safe-area-inset-bottom));max-height:80vh;overflow:auto}
+  .msheet h4{margin:2px 4px 10px;font-family:'Pagella',serif;font-weight:400;font-size:18px;color:#1E3A33}
+  .msheet .mg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .msheet .mg button{background:#fff;border:1px solid #D9D2C2;color:#1E3A33;text-align:left;padding:14px;font-weight:700;font-size:14px;border-radius:12px}
+  .msheet .mg button.on{border-color:#1E3A33;background:#ECE5D5}
+}
 
 .hol .card{background:#fff;border:1px solid var(--h-line);border-radius:14px;padding:16px;margin-bottom:14px}
 .hol .card h2{font-size:19px;color:var(--h-green);margin-bottom:4px}
@@ -405,6 +485,7 @@ h3{font-family:'Pagella',Georgia,serif;font-weight:400}
           <span class="hint">Offer this candle in packs (e.g. Pack of 4) at a special price. Shown right after the single price in both catalogs. Add as many pack sizes as you like — most candles won't need any.</span>
           <div id="packRows" style="margin-top:8px;"></div>
           <button type="button" class="btn-secondary tiny-btn" id="addPackBtn" style="margin-top:4px;">+ Add pack option</button>
+          <div class="catcost" id="catCostPanel"></div>
 
           <label>Notes (optional)</label>
           <textarea id="fNotes" placeholder="Anything worth mentioning — fragrance pairing, size, etc."></textarea>
@@ -2377,7 +2458,7 @@ async function onConnected(){
   try{ await mergeDeviceOnlyPricing(); }catch(e){ console.warn("device-only pricing", e); }
   rebuildItems();
   try{ await syncPricingLog(); }catch(e){ console.warn("pricing sync", e); }
-  renderPricingLog(); pricingWhere();
+  renderPricingLog(); pricingWhere(); renderCatCost();
 }
 function onProductsChanged(){
   PRODUCTS = (products || []).filter(x => x.active !== false).map(x => ({id: x.id, name: x.name, category: x.category, wax: x.wax, price: x.price, packs: x.packs || [], folder: x.folder, mainImageOverride: x.mainImageOverride, excludeFiles: x.excludeFiles}));
@@ -2627,7 +2708,112 @@ async function refreshPricing(){
 document.querySelector('.tab-btn[data-tab="tabPricing"]').addEventListener("click", refreshPricing);
 document.querySelector('.tab-btn[data-tab="tabTrueCost"]').addEventListener("click", () => { if(CUR) loadItem(); });
 
-window.HOL = {rebuildItems, applyPricingEntry, syncPricingLog, itemForPricing, pubStatus, packNames, openConnect, isHolFolder, autoConnect, migrate, onConnected, onProductsChanged, renderToday, modeLabel};
+/* ---------------- Phone layout: bottom tab bar, "More" sheet, tables as cards ---------------- */
+const MNAV = [
+  ["tabOrders", "Orders", '<path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/>'],
+  ["tabCandles", "Catalogue", '<path d="M12 3c2 3-2 4 0 7"/><rect x="7" y="10" width="10" height="11" rx="2"/>'],
+  ["tabTrueCost", "True cost", '<circle cx="12" cy="12" r="9"/><path d="M9 8h6M9 11h6M11 8c3 0 3 6 0 6l4 4"/>'],
+  ["tabFinance", "Money", '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>'],
+  ["__more", "More", '<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>']
+];
+function tabBtn(id){ return document.querySelector('.tabs .tab-btn[data-tab="' + id + '"]'); }
+function activeTab(){ const b = document.querySelector(".tabs .tab-btn.active"); return b ? b.dataset.tab : ""; }
+function buildMobileNav(){
+  if($("mnav")) return;
+  const nav = document.createElement("nav"); nav.id = "mnav"; nav.className = "mnav";
+  nav.innerHTML = MNAV.map(([id, label, icon]) => '<button type="button" data-t="' + id + '"><svg viewBox="0 0 24 24">' + icon + '</svg>' + label + '</button>').join("");
+  const bg = document.createElement("div"); bg.className = "msheet-bg"; bg.id = "msheetBg";
+  const sh = document.createElement("div"); sh.className = "msheet"; sh.id = "msheet";
+  document.body.appendChild(bg); document.body.appendChild(sh); document.body.appendChild(nav);
+  const closeSheet = () => { sh.classList.remove("show"); bg.classList.remove("show"); };
+  bg.onclick = closeSheet;
+  nav.onclick = e => {
+    const b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.t === "__more"){
+      const main = MNAV.map(m => m[0]);
+      sh.innerHTML = '<h4>More</h4><div class="mg">' + [...document.querySelectorAll(".tabs .tab-btn")].filter(t => !main.includes(t.dataset.tab))
+        .map(t => '<button type="button" data-t="' + t.dataset.tab + '" class="' + (t.classList.contains("active") ? "on" : "") + '">' + t.textContent.trim() + '</button>').join("") + '</div>';
+      sh.querySelectorAll("button").forEach(x => x.onclick = () => { closeSheet(); const t = tabBtn(x.dataset.t); if(t){ t.click(); window.scrollTo(0, 0); } });
+      sh.classList.add("show"); bg.classList.add("show"); return;
+    }
+    closeSheet(); const t = tabBtn(b.dataset.t); if(t){ t.click(); window.scrollTo(0, 0); }
+  };
+  const sync = () => { const a = activeTab(), main = MNAV.map(m => m[0]); nav.querySelectorAll("button").forEach(x => x.classList.toggle("on", x.dataset.t === a || (x.dataset.t === "__more" && !main.includes(a)))); };
+  document.querySelectorAll(".tabs .tab-btn").forEach(t => t.addEventListener("click", () => setTimeout(sync, 0)));
+  sync();
+}
+/* label every cell with its column heading, so wide tables can show as cards on a phone */
+function cardifyTables(){
+  document.querySelectorAll("table").forEach(t => {
+    if(t.closest(".catcost") || t.dataset.nocard) return;
+    const ths = [...t.querySelectorAll("thead th")]; if(ths.length < 4){ t.classList.remove("rt"); return; }
+    t.classList.add("rt");
+    const heads = ths.map(th => th.textContent.trim());
+    t.querySelectorAll("tbody tr").forEach(tr => { let i = 0; [...tr.children].forEach(td => { if(td.tagName === "TD" && !td.hasAttribute("data-label")) td.setAttribute("data-label", heads[i] || ""); i += +td.colSpan || 1; }); });
+  });
+}
+let cardTimer = null;
+new MutationObserver(() => { clearTimeout(cardTimer); cardTimer = setTimeout(cardifyTables, 60); }).observe(document.body, {childList: true, subtree: true});
+buildMobileNav(); cardifyTables();
+
+/* ---------------- Catalogue: true cost while you edit a candle's prices ---------------- */
+function catCostItem(size){
+  const id = typeof editingId !== "undefined" && editingId ? editingId : "__new__";
+  const p = (products || []).find(x => x.id === id) || {};
+  const nm = ($("fName").value || p.name || "This candle").trim();
+  const cat = $("fCategory").value || p.category || "";
+  const w = num($("fWax").value);
+  const base = {id, name: nm, category: cat};
+  return {key: size > 1 ? id + "#" + size : id, base, size, name: size > 1 ? nm + " — set of " + size : nm, cat, weight: w != null ? w : (p.wax || null)};
+}
+function catCostRows(c, n){
+  return [["Wax (" + Math.round(c.waxG * n) + " g)", c.wax], ["Fragrance oil (" + Math.round(c.oilG * n) + " g)", c.oil], ["Wastage", c.waste], ["Container", c.container],
+    ["Wicks", c.wick], ["Colour / dye", c.dye], ["Decor / embeds", c.decor], ["Labour", c.labour], ["Packaging", c.pack], ["Labels & card", c.label],
+    ["Overheads", c.over], ["Other / delivery", c.other]].filter(r => r[1]);
+}
+function renderCatCost(){
+  const box = $("catCostPanel"); if(!box) return;
+  if(!MODE){ box.innerHTML = ""; return; }
+  const one = catCostItem(1), s = settingsFor(one), c = compute(one, s);
+  const minP = +COST.defaults.minProfit || 0, floor = ceil5(c.cost * (1 + minP / 100), 5);
+  const price = num($("fPrice").value), bulk = num($("fBulk").value);
+  const prof = price != null ? price - c.cost : null, marg = price ? prof / price * 100 : null;
+  const cls = v => v == null ? "" : v < 0 ? "bad" : (price != null && price < floor) ? "warn" : "good";
+  const warn = [];
+  if(VESSEL_CATS.includes(one.cat) && !(+s.container > 0)) warn.push("No container cost yet, so this looks cheaper to make than it is.");
+  if(!(+s.weight > 0)) warn.push("Enter the wax weight to cost the wax and fragrance.");
+  const own = COST.products[one.key] || {};
+  if(own.weight != null && num($("fWax").value) != null && +own.weight !== num($("fWax").value)) warn.push("True cost uses " + own.weight + " g (set on the True cost tab); the catalogue weight here is " + num($("fWax").value) + " g.");
+  const status = (pr, cost) => pr == null ? "" : pr < cost - 0.01 ? '<span class="pill bad">Loss</span>' : pr < floor ? '<span class="pill warn">Below floor</span>' : '<span class="pill good">OK</span>';
+  let html = '<h3>True cost &amp; profit</h3>' +
+    '<div class="kp"><div><span>True cost</span><b>' + inr(c.cost) + '</b></div>' +
+    '<div class="' + cls(prof) + '"><span>Profit at ₹' + (price ?? "—") + '</span><b>' + (prof == null ? "—" : inr(prof) + " · " + pct(marg)) + '</b></div>' +
+    '<div><span>Lowest price</span><b>' + inr(floor) + '</b></div>' +
+    '<div><span>Max discount</span><b>' + (price ? pct(Math.max(0, (price - floor) / price * 100)) : "—") + '</b></div></div>';
+  if(warn.length) html += '<div class="note">' + warn.join("<br>") + '</div>';
+  const rows = [["Single (retail)", 1, price, c.cost]];
+  if(bulk != null) rows.push(["Single (bulk price)", 1, bulk, c.cost]);
+  (typeof packRows !== "undefined" ? packRows : []).filter(r => r.size).forEach(r => { const it = catCostItem(r.size), cc = compute(it, settingsFor(it)); rows.push(["Set of " + r.size, r.size, r.price, cc.cost]); });
+  html += '<table><thead><tr><th>Price</th><th>Sells at</th><th>True cost</th><th>Profit</th><th></th></tr></thead><tbody>' +
+    rows.map(([l, n, pr, cost]) => '<tr><td>' + l + '</td><td>' + (pr == null ? "—" : inr(pr)) + '</td><td>' + inr(cost) + '</td><td>' + (pr == null ? "—" : inr(pr - cost) + (pr ? " · " + pct((pr - cost) / pr * 100) : "")) + '</td><td>' + status(pr, cost) + '</td></tr>').join("") + '</tbody></table>';
+  html += '<details><summary>See the breakup (per piece)</summary><table><tbody>' +
+    catCostRows(c, 1).map(r => '<tr><td>' + r[0] + '</td><td>' + inr2(r[1]) + '</td><td>' + (c.cost ? Math.round(r[1] / c.cost * 100) : 0) + '%</td></tr>').join("") +
+    '<tr class="tot"><td>True cost</td><td>' + inr2(c.cost) + '</td><td></td></tr></tbody></table></details>';
+  const known = ITEMS.some(i => i.key === one.key);
+  html += '<div class="hint" style="margin-top:8px">' + (known ? 'Costs come from the True cost tab. <button type="button" class="lnk" id="catCostEdit">Change container, wicks, labour…</button>'
+    : 'Using your default rates. After saving, set container, wicks and labour for this candle on the True cost tab.') + '</div>';
+  box.innerHTML = html;
+  const ed = $("catCostEdit"); if(ed) ed.onclick = () => { CUR = ITEMS.find(i => i.key === one.key); if(CUR){ $("pick").value = CUR.key; loadItem(); show("pCost"); } };
+}
+let catCostTimer = null;
+function catCostSoon(){ clearTimeout(catCostTimer); catCostTimer = setTimeout(renderCatCost, 80); }
+["fName", "fWax", "fPrice", "fBulk"].forEach(id => { const el = $(id); if(el) el.addEventListener("input", catCostSoon); });
+if($("fCategory")) $("fCategory").addEventListener("change", catCostSoon);
+if($("packRows")){ $("packRows").addEventListener("input", catCostSoon); $("packRows").addEventListener("change", catCostSoon); $("packRows").addEventListener("click", catCostSoon); }
+if($("addPackBtn")) $("addPackBtn").addEventListener("click", catCostSoon);
+document.querySelector('.tab-btn[data-tab="tabCandles"]').addEventListener("click", catCostSoon);
+
+window.HOL = {renderCatCost, rebuildItems, applyPricingEntry, syncPricingLog, itemForPricing, pubStatus, packNames, openConnect, isHolFolder, autoConnect, migrate, onConnected, onProductsChanged, renderToday, modeLabel};
 })();
 
 </script>
@@ -3496,6 +3682,7 @@ function resetForm(){
   renderPackRows();
   editingId = null;
   document.getElementById("submitBtn").textContent = "Add to Catalog";
+  if(window.HOL && HOL.renderCatCost) HOL.renderCatCost();
 }
 document.getElementById("resetBtn").addEventListener("click", resetForm);
 
@@ -3580,6 +3767,7 @@ async function loadForEdit(id){
   renderThumbs();
   packRows = (p.packs || []).map(r => ({size: r.size, price: r.price}));
   renderPackRows();
+  if(window.HOL && HOL.renderCatCost) HOL.renderCatCost();
   document.getElementById("submitBtn").textContent = "Save Changes";
   window.scrollTo({top:0, behavior:"smooth"});
 }
