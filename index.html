@@ -3050,9 +3050,20 @@ async function saveMaster(){
 }
 
 function getAllCategoryNames(){
-  const existing = [...new Set(products.map(p => p.category))];
-  const extra = existing.filter(c => !PREFERRED_CATEGORIES.includes(c)).sort();
-  return [...PREFERRED_CATEGORIES, ...extra];
+  const used = [...new Set(products.map(p => (p.category || "").trim()).filter(Boolean))];
+  const pref = PREFERRED_CATEGORIES.filter(c => used.includes(c));
+  const extra = used.filter(c => !PREFERRED_CATEGORIES.includes(c)).sort((a, b) => a.localeCompare(b));
+  const all = [...pref, ...extra];
+  return all.length ? all : [...PREFERRED_CATEGORIES];
+}
+async function carryCategorySettings(oldName, newName){
+  const lc = s => String(s || "").toLowerCase();
+  let cs = false, sp = false;
+  Object.keys(collectionSettings || {}).forEach(k => { if(lc(k) === lc(oldName)){ if(newName && !collectionSettings[newName]) collectionSettings[newName] = collectionSettings[k]; if(k !== newName) delete collectionSettings[k]; cs = true; } });
+  ["wholesale", "sale"].forEach(t => { const o = (specialPricing[t] || {}).categoryOverrides || {};
+    Object.keys(o).forEach(k => { if(lc(k) === lc(oldName)){ if(newName && o[newName] == null) o[newName] = o[k]; if(k !== newName) delete o[k]; sp = true; } }); });
+  try{ if(cs) await saveCollectionSettings(); }catch(e){ console.warn("collection settings", e); }
+  try{ if(sp) await saveSpecialPricing(); }catch(e){ console.warn("special pricing", e); }
 }
 
 // ---------- Category management (rename / delete-with-reassign) ----------
@@ -3132,6 +3143,10 @@ function renderCategoryManagement(){
     let n = 0;
     products.forEach(p => { if(p.category === oldName){ p.category = newName; n++; } });
     await saveMaster();
+    await carryCategorySettings(oldName, newName);
+    if(window.HOL && HOL.onProductsChanged) HOL.onProductsChanged();
+    if(typeof renderWholesaleForm === "function") renderWholesaleForm();
+    if(typeof renderSaleForm === "function") renderSaleForm();
     msg.textContent = mergingInto
       ? `Renamed and merged into "${newName}" — ${n} candle${n === 1 ? "" : "s"} moved in.`
       : `Renamed "${oldName}" to "${newName}" — ${n} candle${n === 1 ? "" : "s"} updated.`;
@@ -3150,6 +3165,8 @@ function renderCategoryManagement(){
     let n = 0;
     products.forEach(p => { if(p.category === oldName){ p.category = target; n++; } });
     await saveMaster();
+    await carryCategorySettings(oldName, null);
+    if(window.HOL && HOL.onProductsChanged) HOL.onProductsChanged();
     msg.textContent = `Moved ${n} candle${n === 1 ? "" : "s"} from "${oldName}" to "${target}" and removed "${oldName}".`;
     msg.className = "msg ok";
     categoryMgmtState = {};
