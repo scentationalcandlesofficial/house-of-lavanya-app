@@ -1965,12 +1965,14 @@ function buildItems(){
   ITEMS = [];
   const order = ["Jesmonite","Glass","Wooden","Metal Urli","T-Light","Tin Jar","Wax Shapes","Ladoo and Modak","Taper and pillar candle","Wax tablets"];
   const cats = order.concat([...new Set(PRODUCTS.map(p=>p.category))].filter(c=>!order.includes(c)));
+  if(DS && DS.collections){ const _o = cats.slice(); cats.sort((a, b) => (((DS.collections[a] || {}).order || 999) - ((DS.collections[b] || {}).order || 999)) || (_o.indexOf(a) - _o.indexOf(b))); }
   cats.forEach(cat => PRODUCTS.filter(p=>p.category===cat).forEach(p => {
     ITEMS.push({key:p.id, base:p, size:1, name:p.name, cat, mrp:p.price, weight:p.wax});
     (p.packs||[]).forEach(pk => ITEMS.push({key:p.id+"#"+pk.size, base:p, size:pk.size,
       name:p.name.replace(/\s*\(single\)/i,"").trim()+" — set of "+pk.size, cat, mrp:pk.price, weight:p.wax}));
   }));
   addExtraItems();
+  decorateItems();
 }
 const FIELDS = ["weight","load","waxRate","fragRate","waste","dye","container","wick","wicks","decor","labMode","rate","minutes","labPct","pack","label","over","other"];
 function settingsFor(item){
@@ -2014,8 +2016,8 @@ let CUR = null;
 function refreshPick(){
   const sel = $("pick"), keep = CUR ? CUR.key : null;
   sel.innerHTML = ""; let last = null;
-  ITEMS.forEach(it => { if(it.cat !== last){ const g = document.createElement("optgroup"); g.label = it.cat; sel.appendChild(g); last = it.cat; }
-    const o = document.createElement("option"); o.value = it.key; o.textContent = it.name + "  ·  " + inr(it.mrp); sel.lastChild.appendChild(o); });
+  ITEMS.forEach(it => { if(it.cat !== last){ const g = document.createElement("optgroup"); g.label = it.cn || it.cat; sel.appendChild(g); last = it.cat; }
+    const o = document.createElement("option"); o.value = it.key; o.textContent = (it.dn || it.name) + (it.dn && it.dn !== it.name ? " (" + it.name + ")" : "") + "  ·  " + inr(it.mrp); sel.lastChild.appendChild(o); });
   CUR = ITEMS.find(i => i.key === keep) || ITEMS[0]; if(CUR){ sel.value = CUR.key; loadItem(); }
 }
 function setLabMode(seg, m){ [...$(seg).children].forEach(b => b.classList.toggle("on", b.dataset.m === m)); }
@@ -2023,7 +2025,7 @@ function loadItem(){
   if(!CUR) return;
   const s = settingsFor(CUR), d = COST.defaults;
   const th = SNAP.thumbs[CUR.base.id];
-  $("prodBox").innerHTML = (th ? '<img src="'+th+'" alt="">' : '') + '<div><div class="n">'+CUR.name+'</div><div class="m">'+CUR.cat+' · '+(CUR.extra?'suggested retail ':'MRP ')+inr(CUR.mrp)+(CUR.size>1?' for '+CUR.size+' pieces':'')+
+  $("prodBox").innerHTML = (th ? '<img src="'+th+'" alt="">' : '') + '<div><div class="n">'+(CUR.dn || CUR.name)+'</div><div class="m">'+(CUR.dn && CUR.dn !== CUR.name ? CUR.name+' · ' : '')+(CUR.cn || CUR.cat)+' · '+(CUR.extra?'suggested retail ':'MRP ')+inr(CUR.mrp)+(CUR.size>1?' for '+CUR.size+' pieces':'')+
      (COST.products[CUR.key] ? ' · <span class="pill good">customised</span>' : '')+pricingSourceNote(CUR.key)+(CUR.extra?'<div class="m">Not in the catalogue yet. Add it on the Catalogue tab with this exact name to sell it; its costs stay linked.</div>':'')+'</div></div>';
   FIELDS.filter(k => k !== "labMode").forEach(k => { const el = $("c_"+k); if(el){ el.value = s[k] ?? ""; } });
   $("h_weight").textContent = CUR.weight ? "From catalogue: " + CUR.weight + " g per piece" : "Not in the catalogue — weigh one and enter it";
@@ -2106,7 +2108,7 @@ function renderAll(){
    rows.map(({it,a}) => {
      const trade = res ? Math.round(it.mrp*res/100/rnd)*rnd : null, st = trade!=null ? status(trade, a.c.cost, a.floor) : null;
      const flag = it.extra ? '<span class="pill warn">not in catalogue</span>' : a.noWeight ? '<span class="pill warn">add weight</span>' : a.needsVessel ? '<span class="pill warn">add container</span>' : (COST.products[it.key] ? '<span class="pill good">customised</span>' : '');
-     return '<tr data-k="'+it.key+'"><td>'+it.name+'</td><td>'+inr(it.mrp)+'</td><td>'+inr(a.c.cost)+'</td><td>'+inr(a.profit)+' · '+pct(a.margin)+'</td><td>'+inr(a.floor)+'</td><td>'+pct(a.maxoff)+'</td>'+
+     return '<tr data-k="'+it.key+'"><td>'+(it.dn || it.name)+(it.dn && it.dn !== it.name ? '<div class="hint">'+it.name+'</div>' : '')+'</td><td>'+inr(it.mrp)+'</td><td>'+inr(a.c.cost)+'</td><td>'+inr(a.profit)+' · '+pct(a.margin)+'</td><td>'+inr(a.floor)+'</td><td>'+pct(a.maxoff)+'</td>'+
        (res?'<td><span class="pill '+st[0]+'">'+inr(trade)+'</span></td>':'')+'<td>'+flag+'</td></tr>';
    }).join("") + '</tbody>';
   [...$("allTable").querySelectorAll("tbody tr")].forEach(tr => tr.onclick = () => { CUR = ITEMS.find(i => i.key === tr.dataset.k); $("pick").value = CUR.key; loadItem(); show("pCost"); window.scrollTo(0,0); });
@@ -2372,7 +2374,7 @@ function igCaption(){
   const it = ITEMS.find(x => x.key === $("ig_prod").value);
   const nfr = 22;
   if(!it) return "Hand-poured in small batches with 100% soy wax, in Delhi NCR.\n\nDM or WhatsApp +91 83750 31685 to order · corporate, hotel & wedding orders welcome.\n\n#houseoflavanya #soycandles #handpouredcandles #delhincr #gurugram #candlesofinstagram #homedecorindia #giftingideas";
-  return it.name + "\n\n" + (CAT_LINES[it.cat] || "Hand-poured in small batches with 100% soy wax.") + "\nPoured to order in your choice of " + nfr + " fragrances and custom colours.\n\n" +
+  return (it.dn || it.name) + "\n\n" + (CAT_LINES[it.cat] || "Hand-poured in small batches with 100% soy wax.") + "\nPoured to order in your choice of " + nfr + " fragrances and custom colours.\n\n" +
     "MRP ₹" + it.mrp.toLocaleString("en-IN") + (it.base.packs && it.base.packs.length ? " · sets available" : "") + "\nDM or WhatsApp +91 83750 31685 to order · corporate, hotel & wedding orders welcome.\n\n" +
     "#houseoflavanya #soycandles #handpouredcandles #delhincr #gurugram #candlesofinstagram #homedecorindia #diwaligifting #corporategifting #weddingfavours";
 }
@@ -2445,8 +2447,8 @@ async function igShare(){
 
 function itemOptions(){
   let html = "", last = null;
-  ITEMS.filter(it => !it.extra).forEach(it => { if(it.cat !== last){ if(last !== null) html += "</optgroup>"; html += '<optgroup label="' + esc(it.cat) + '">'; last = it.cat; }
-    html += '<option value="' + it.key + '">' + esc(it.name) + ' · ' + inr(it.mrp) + '</option>'; });
+  ITEMS.filter(it => !it.extra).forEach(it => { if(it.cat !== last){ if(last !== null) html += "</optgroup>"; html += '<optgroup label="' + esc(it.cn || it.cat) + '">'; last = it.cat; }
+    html += '<option value="' + it.key + '">' + esc(it.dn || it.name) + ' · ' + inr(it.mrp) + '</option>'; });
   return html + "</optgroup>";
 }
 async function useProductPhoto(){
@@ -2507,7 +2509,7 @@ $("holUseFolder").onclick = useFolder; $("holUseGH").onclick = useGitHub; $("hol
 $("holConnClose").onclick = () => $("holConnect").style.display = "none";
 $("ig_useprod").onclick = useProductPhoto;
 $("ig_file").onchange = e => { if(e.target.files[0]) loadIgFile(e.target.files[0]); };
-$("ig_prod").onchange = () => { const it = ITEMS.find(x => x.key === $("ig_prod").value); if(it) $("ig_head").value = it.name; $("ig_cap").value = igCaption(); drawIg(); };
+$("ig_prod").onchange = () => { const it = ITEMS.find(x => x.key === $("ig_prod").value); if(it) $("ig_head").value = it.dn || it.name; $("ig_cap").value = igCaption(); drawIg(); };
 $("ig_lay").onclick = e => { const m = e.target.dataset.m; if(!m) return; IG_LAY = m; [...$("ig_lay").children].forEach(b => b.classList.toggle("on", b.dataset.m === m)); drawIg(); };
 ["ig_head", "ig_sub"].forEach(id => $(id).oninput = drawIg); ["ig_price", "ig_fill"].forEach(id => $(id).onchange = drawIg);
 $("ig_dl").onclick = igDownload; $("ig_share").onclick = igShare;
@@ -2649,6 +2651,9 @@ const EXTRA_CAT = "Not in catalogue yet (Pricing Calculator)";
 function catalogueItemFor(e){
   const n = normName(e && e.name); if(!n) return null;
   return ITEMS.find(i => !i.extra && normName(i.name) === n) || ITEMS.find(i => !i.extra && i.size === 1 && normName(i.base.name) === n) || null;
+}
+function decorateItems(){
+  ITEMS.forEach(it => { const d = it.extra ? it.name : holPN(it.base); it.dn = it.size > 1 ? d.replace(/\s*\(single\)/i, "").trim() + " — set of " + it.size : d; it.cn = it.extra ? it.cat : holCN(it.cat); });
 }
 function addExtraItems(){
   let log = []; try{ if(Array.isArray(pricingLog)) log = pricingLog; }catch(e){}
@@ -2959,6 +2964,7 @@ async function dsSave(){
     DS.products = Object.assign({}, disk.products || {}, DS.products);
     await writeJSON(DS_FILE, DS);
     $("dsMsg").innerHTML = "Saved. Tap <b>Publish catalogue</b> above to update the live Digital catalogue."; $("dsMsg").className = "msg ok";
+    holRefreshNames();
   }catch(e){ $("dsMsg").textContent = "Not saved: " + e.message; $("dsMsg").className = "msg err"; }
 }
 async function dsRenameCategory(oldName, newName){
@@ -2966,11 +2972,32 @@ async function dsRenameCategory(oldName, newName){
   if(newName && !d.collections[newName]) d.collections[newName] = d.collections[oldName];
   delete d.collections[oldName]; await writeJSON(DS_FILE, d); if(DS) await dsLoad(); dsRender();
 }
-async function dsOpen(){ if(!MODE) return; try{ await dsLoad(); dsRender(); }catch(e){ console.warn("digital settings", e); } }
+
+/* ---------------- One naming everywhere in the app ----------------
+   Every tab shows the online name (Digital catalogue settings) first and the catalogue name
+   beneath / in brackets. Stored data, orders, prices and the Premium PDF keep the catalogue names. */
+function holPN(p){ if(!p) return ""; const d = ((DS && DS.products) || {})[p.id] || {}; return (d.displayName || "").trim() || p.name; }
+function holCN(c){ const col = ((DS && DS.collections) || {})[c] || {}; return (col.name || "").trim() || c; }
+function holNameFor(name){ const list = products || []; const p = list.find(x => x.name === name && x.active !== false) || list.find(x => x.name === name); return p ? holPN(p) : name; }
+function holPLabel(p){ const d = holPN(p); return d !== p.name ? dsEsc(d) + '<div class="hint">' + dsEsc(p.name) + '</div>' : dsEsc(p.name); }
+function holCLabel(c){ const n = holCN(c); return n !== c ? n + " (" + c + ")" : c; }
+Object.assign(window, {holPN, holCN, holNameFor, holPLabel, holCLabel});
+function holRefreshNames(){
+  try{
+    onProductsChanged();
+    if(typeof renderTable === "function") renderTable();
+    if(typeof buildCategoryOptions === "function") buildCategoryOptions();
+    ["buildItemDatalist", "buildOrderItemDatalist", "buildPricingItemDatalist", "renderFinishedTable", "renderPricingLog", "renderWholesaleForm", "renderSaleForm"].forEach(fn => {
+      try{ if(typeof window[fn] === "function") window[fn](); else if(typeof eval(fn) === "function") eval(fn)(); }catch(e){} });
+    try{ if(typeof renderPriceReview === "function" && typeof priceReviewRows !== "undefined" && priceReviewRows.length) renderPriceReview(); }catch(e){}
+    if(CUR) loadItem();
+  }catch(e){ console.warn("names", e); }
+}
+async function dsOpen(){ if(!MODE) return; try{ await dsLoad(); dsRender(); holRefreshNames(); }catch(e){ console.warn("digital settings", e); } }
 if($("dsSave")) $("dsSave").onclick = dsSave;
 document.querySelector('.tab-btn[data-tab="tabCandles"]').addEventListener("click", () => { if(!DS) dsOpen(); });
 
-window.HOL = {dsRenameCategory, dsOpen, renderCatCost, rebuildItems, applyPricingEntry, syncPricingLog, itemForPricing, pubStatus, packNames, openConnect, isHolFolder, autoConnect, migrate, onConnected, onProductsChanged, renderToday, modeLabel};
+window.HOL = {holRefreshNames, dsRenameCategory, dsOpen, renderCatCost, rebuildItems, applyPricingEntry, syncPricingLog, itemForPricing, pubStatus, packNames, openConnect, isHolFolder, autoConnect, migrate, onConnected, onProductsChanged, renderToday, modeLabel};
 })();
 
 </script>
@@ -3243,7 +3270,7 @@ function renderCategoryManagement(){
     return `
       <div style="padding:8px 0;border-bottom:1px solid var(--line);">
         <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
-          <div><b>${escapeHtml(name)}</b> <span class="hint">(${count} candle${count === 1 ? "" : "s"})</span></div>
+          <div><b>${escapeHtml(name)}</b>${window.holCN && holCN(name) !== name ? ` <span class="badge">online: ${escapeHtml(holCN(name))}</span>` : ""} <span class="hint">(${count} candle${count === 1 ? "" : "s"})</span></div>
           <div style="display:flex;gap:6px;">
             <button type="button" class="btn-secondary tiny-btn" data-cat-rename="${escapeHtml(name)}">Rename</button>
             ${deleteBtn}
@@ -3318,7 +3345,7 @@ function renderPercentOverrideCategoryList(wrapId, overrides){
   const names = getAllCategoryNames();
   wrap.innerHTML = names.map(name => `
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-      <div style="flex:1;">${escapeHtml(name)}</div>
+      <div style="flex:1;">${escapeHtml(window.holCLabel ? holCLabel(name) : name)}</div>
       <input type="number" min="1" max="99" data-cat-pct="${escapeHtml(name)}" value="${overrides[name] ?? ""}" placeholder="default" style="width:90px;">
     </div>
   `).join("");
@@ -3339,7 +3366,7 @@ function renderCandleOverrideList(wrapId, overrides, unitLabel){
   if(!entries.length){ wrap.innerHTML = '<p class="hint">No individual candle overrides yet.</p>'; return; }
   wrap.innerHTML = entries.map(([id, pct]) => {
     const p = products.find(x => x.id === id);
-    const label = p ? `${escapeHtml(p.name)} (${escapeHtml(p.category)})` : `(deleted candle — ${escapeHtml(id)})`;
+    const label = p ? `${escapeHtml(window.holPN ? holPN(p) : p.name)}${window.holPN && holPN(p) !== p.name ? " · " + escapeHtml(p.name) : ""} (${escapeHtml(window.holCN ? holCN(p.category) : p.category)})` : `(deleted candle — ${escapeHtml(id)})`;
     return `
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         <div style="flex:1;">${label}</div>
@@ -3503,15 +3530,17 @@ document.getElementById("saleSaveBtn").addEventListener("click", async () => {
 function buildCategoryOptions(){
   const all = getAllCategoryNames();
   const sel = document.getElementById("fCategory");
+  const prevCat = sel.value;
   sel.innerHTML = "";
   all.forEach(c => {
     const opt = document.createElement("option");
-    opt.value = c; opt.textContent = c;
+    opt.value = c; opt.textContent = window.holCLabel ? holCLabel(c) : c;
     sel.appendChild(opt);
   });
   const addOpt = document.createElement("option");
   addOpt.value = "__new__"; addOpt.textContent = "+ Add new category…";
   sel.appendChild(addOpt);
+  if(prevCat && prevCat !== "__new__" && [...sel.options].some(o => o.value === prevCat)) sel.value = prevCat;
 
   // finance category select also gets refreshed depending on current type
   refreshTxCategoryOptions();
@@ -3527,7 +3556,7 @@ function buildPricingCategoryOptions(){
   sel.innerHTML = '<option value="">— none —</option>';
   all.forEach(c => {
     const opt = document.createElement("option");
-    opt.value = c; opt.textContent = c;
+    opt.value = c; opt.textContent = window.holCLabel ? holCLabel(c) : c;
     sel.appendChild(opt);
   });
   if([...sel.options].some(o => o.value === prev)) sel.value = prev;
@@ -3540,6 +3569,7 @@ function buildPricingItemDatalist(){
   [...new Set(products.map(p => p.name))].forEach(n => {
     const opt = document.createElement("option");
     opt.value = n;
+    if(window.holNameFor && holNameFor(n) !== n) opt.label = holNameFor(n);
     dl.appendChild(opt);
   });
 }
@@ -3554,6 +3584,7 @@ function buildItemDatalist(){
   [...new Set(products.map(p => p.name))].forEach(n => {
     const opt = document.createElement("option");
     opt.value = n;
+    if(window.holNameFor && holNameFor(n) !== n) opt.label = holNameFor(n);
     dl.appendChild(opt);
   });
 }
@@ -3564,6 +3595,7 @@ function buildOrderItemDatalist(){
   [...new Set(products.map(p => p.name).concat((window.HOL && HOL.packNames) ? HOL.packNames() : []))].forEach(n => {
     const opt = document.createElement("option");
     opt.value = n;
+    if(window.holNameFor && holNameFor(n) !== n) opt.label = holNameFor(n);
     dl.appendChild(opt);
   });
 }
@@ -3870,6 +3902,7 @@ function renderTable(){
   document.getElementById("countPill").textContent = active.length;
   const filtered = active.filter(p =>
     !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q)
+       || (window.holPN && (holPN(p) + " " + holCN(p.category)).toLowerCase().includes(q))
   );
   document.getElementById("emptyState").style.display = filtered.length ? "none" : "block";
   filtered
@@ -3881,8 +3914,8 @@ function renderTable(){
         ? p.packs.map(r => `${r.size}: ₹${r.price}`).join(", ")
         : "—";
       tr.innerHTML = `
-        <td>${escapeHtml(p.name)}</td>
-        <td><span class="badge">${escapeHtml(p.category)}</span></td>
+        <td>${window.holPLabel ? holPLabel(p) : escapeHtml(p.name)}</td>
+        <td><span class="badge">${escapeHtml(window.holCN ? holCN(p.category) : p.category)}</span></td>
         <td>₹${p.price ?? "—"}</td>
         <td style="font-size:12px;color:var(--muted,#8B8272);">${escapeHtml(packSummary)}</td>
         <td>${p.folder ? "✓" : "—"}</td>
@@ -5254,7 +5287,7 @@ function renderCollectionHeroGrid(){
     return `
       <div class="collection-card">
         <div class="thumb-box" id="heroThumb-${slug}"><span class="noph">Loading…</span></div>
-        <div class="cname">${escapeHtml(CATEGORY_DISPLAY[cat] || cat)}</div>
+        <div class="cname">${escapeHtml(window.holCN && holCN(cat) !== cat ? holCN(cat) : (CATEGORY_DISPLAY[cat] || cat))}</div>
         <div class="cwho" id="heroWho-${slug}"></div>
         <button type="button" class="btn-secondary tiny-btn" data-choose="${escapeHtml(cat)}">Choose photo</button>
       </div>
@@ -5400,7 +5433,7 @@ function buildMaterialCategoryOptions(){
   sel.innerHTML = "";
   all.forEach(c => {
     const opt = document.createElement("option");
-    opt.value = c; opt.textContent = c;
+    opt.value = c; opt.textContent = window.holCLabel ? holCLabel(c) : c;
     sel.appendChild(opt);
   });
   const addOpt = document.createElement("option");
@@ -5585,14 +5618,14 @@ function renderFinishedTable(){
   const active = products.filter(p => p.active !== false);
   document.getElementById("finishedCountPill").textContent = active.length;
   document.getElementById("finishedEmptyState").style.display = active.length ? "none" : "block";
-  const filtered = active.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+  const filtered = active.filter(p => !q || p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q) || (window.holPN && (holPN(p) + " " + holCN(p.category)).toLowerCase().includes(q)));
   tbody.innerHTML = "";
   filtered.slice().sort((a,b) => a.name.localeCompare(b.name)).forEach(p => {
     const stock = finishedStock[p.id] || 0;
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${escapeHtml(p.name)}</td>
-      <td><span class="badge">${escapeHtml(p.category)}</span></td>
+      <td>${window.holPLabel ? holPLabel(p) : escapeHtml(p.name)}</td>
+      <td><span class="badge">${escapeHtml(window.holCN ? holCN(p.category) : p.category)}</span></td>
       <td>${stock < 0 ? `<span style="color:var(--red);">${stock}</span>` : stock}</td>
       <td>
         <button type="button" class="btn-secondary tiny-btn" data-batch="${p.id}">+ Batch Made</button>
@@ -5982,7 +6015,7 @@ function renderPricingLog(){
     .forEach(e => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${escapeHtml(e.name || "—")}</td>
+        <td>${escapeHtml(window.holNameFor ? holNameFor(e.name || "—") : (e.name || "—"))}${window.holNameFor && e.name && holNameFor(e.name) !== e.name ? `<div class="hint">${escapeHtml(e.name)}</div>` : ""}</td>
         <td>${e.category ? `<span class="badge">${escapeHtml(e.category)}</span>` : "—"}</td>
         <td>${(e.netWax||0).toFixed(1)} g</td>
         <td>${fmtMoney(e.totalCost)}</td>
@@ -6099,7 +6132,7 @@ function renderPriceReview(){
     else if(bigJump) note = ` · <b>big jump — check pcs</b>`;
     return `<tr${rowBg ? ` style="background:${rowBg};"` : ''}>
       <td><input type="checkbox" data-pr-sel="${i}" ${r.selected ? "checked" : ""}></td>
-      <td>${escapeHtml(r.name)}<div class="hint">${escapeHtml(r.category)} · ${r.waxEach} g each${note}</div></td>
+      <td>${escapeHtml(window.holNameFor ? holNameFor(r.name) : r.name)}<div class="hint">${window.holNameFor && holNameFor(r.name) !== r.name ? escapeHtml(r.name) + " · " : ""}${escapeHtml(window.holCN ? holCN(r.category) : r.category)} · ${r.waxEach} g each${note}</div></td>
       <td><input type="number" min="1" max="50" step="1" value="${r.pieces}" data-pr-pcs="${i}" style="width:56px;"></td>
       <td>${r.totalG.toFixed(0)}</td>
       <td>₹${r.current}</td>
